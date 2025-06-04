@@ -16,3 +16,8 @@ func Execute() {
 		os.Exit(1)
 	}
 }
+
+func init() {
+	rootCmd.AddCommand(ListCmd())
+	rootCmd.AddCommand(GetCmd())
+}
