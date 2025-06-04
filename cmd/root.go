@@ -3,6 +3,8 @@ package cmd
 import (
 	"os"
 
+	"sonar-api/cmd/actions"
+
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +20,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.AddCommand(ListCmd())
-	rootCmd.AddCommand(GetCmd())
+	rootCmd.AddCommand(actions.ListCmd())
+	rootCmd.AddCommand(actions.GetCmd())
 }
