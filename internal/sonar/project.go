@@ -41,5 +41,9 @@ func GetProject(client *resty.Client, params map[string]string) (Project, error)
 		return Project{}, fmt.Errorf("error en la llamada a la API de SonarCloud: %w", err)
 	}
 
+	if len(resp.Components) == 0 || len(resp.Components) > 1 {
+		return Project{}, fmt.Errorf("no se encontraron proyectos con los parámetros proporcionados %v", params)
+	}
+
 	return resp.Components[0], nil
 }
