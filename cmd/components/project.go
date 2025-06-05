@@ -7,12 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	org        string
-	projectKey string
-	name       string
-)
-
 func GetProjectCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "project",
@@ -78,7 +72,7 @@ func GetProjectCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&org, "org", "o", "", "Organización de SonarCloud (opcional, usa la configuración por defecto si no se especifica)")
-	cmd.Flags().StringVarP(&projectKey, "projectKey", "p", "", "Clave del proyecto de SonarCloud")
+	cmd.Flags().StringVarP(&projectKey, "project-key", "p", "", "Clave del proyecto de SonarCloud")
 	cmd.Flags().StringVarP(&name, "name", "n", "", "Nombre del proyecto de SonarCloud")
 
 	return cmd
