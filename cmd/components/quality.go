@@ -1,6 +1,7 @@
 package components
 
 import (
+	"encoding/json"
 	"sonar-api/internal/sonar"
 	"strconv"
 
@@ -9,8 +10,7 @@ import (
 )
 
 var (
-	org        string
-	projectKey string
+	output string
 )
 
 func ListQualityCmd() *cobra.Command {
@@ -18,14 +18,7 @@ func ListQualityCmd() *cobra.Command {
 		Use:     "quality",
 		Short:   "Listar perfiles de calidad",
 		Long:    `Lista los perfiles de calidad disponibles en SonarCloud.`,
-		Example: `sonarcli get quality --org my-org`,
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			if projectKey == "" {
-				pterm.Error.Printf("Error: se requiere la clave del proyecto\n")
-				return cmd.Help()
-			}
-			return nil
-		},
+		Example: `sonarcli get quality --org my-org --project-key my-project-key`,
 		Run: func(cmd *cobra.Command, args []string) {
 			cfg, err := sonar.LoadConfig()
 			if err != nil {
@@ -42,14 +35,8 @@ func ListQualityCmd() *cobra.Command {
 				return
 			}
 
-			if projectKey == "" {
-				pterm.Error.Printf("Error: se requiere la clave del proyecto\n")
-				return
-			}
-
 			params := map[string]string{
 				"organization": finalOrg,
-				"project":      projectKey,
 			}
 
 			client := sonar.NewClient()
@@ -59,7 +46,7 @@ func ListQualityCmd() *cobra.Command {
 				return
 			}
 
-			if len(profiles) == 0 {
+			if len(profiles.QualityGates) == 0 {
 				pterm.Info.Println("No se encontraron perfiles de calidad.")
 				return
 			}
@@ -67,11 +54,22 @@ func ListQualityCmd() *cobra.Command {
 			table := pterm.TableData{
 				{"ID", "Nombre", "Descripción"},
 			}
-			for _, profile := range profiles {
+
+			if output == "json" {
+				jsonBytes, err := json.MarshalIndent(profiles, "", "  ")
+				if err != nil {
+					pterm.Error.Printf("Error al serializar a JSON: %v\n", err)
+					return
+				}
+				pterm.Println(string(jsonBytes))
+				return
+			}
+
+			for _, profile := range profiles.QualityGates {
 				table = append(table, []string{
-					profile.QualityGate.ID,
-					profile.QualityGate.Name,
-					strconv.FormatBool(profile.QualityGate.Default),
+					strconv.FormatInt(int64(profile.ID), 10),
+					profile.Name,
+					strconv.FormatBool(profile.IsDefault),
 				})
 			}
 
@@ -80,8 +78,7 @@ func ListQualityCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVarP(&org, "org", "o", "", "Organización de SonarCloud (opcional, usa la configuración por defecto si no se especifica)")
-	cmd.Flags().StringVarP(&projectKey, "projectKey", "p", "", "Clave del proyecto de SonarCloud")
-	cmd.MarkFlagsOneRequired("projectKey")
+	cmd.Flags().StringVar(&output, "output", "", "Formato de salida (json, table)")
 
 	return cmd
 }
