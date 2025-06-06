@@ -52,22 +52,27 @@ func GetProjectCmd() *cobra.Command {
 			}
 
 			client := sonar.NewClient()
-			project, err := sonar.GetProject(client, params)
+			projects, err := sonar.GetProject(client, params)
 			if err != nil {
 				pterm.Fatal.Printf("Error al obtener el proyecto: %v\n", err)
 				return
 			}
 
-			if len(project.Key) == 0 {
+			if len(projects) == 0 {
 				pterm.Warning.Println("No se encontró el proyecto.")
 				return
 			}
 
-			pterm.DefaultSection.Println("Detalles del Proyecto")
-			pterm.DefaultTable.WithHasHeader(true).WithData(pterm.TableData{
+			table := pterm.TableData{
 				{"Clave", "Nombre"},
-				{project.Key, project.Name},
-			}).Render()
+			}
+
+			for _, project := range projects {
+				table = append(table, []string{project.Key, project.Name})
+			}
+
+			pterm.DefaultSection.Println("Detalles del Proyecto")
+			pterm.DefaultTable.WithHasHeader(true).WithData(table).Render()
 		},
 	}
 
@@ -116,10 +121,77 @@ func ListProjectsCmd() *cobra.Command {
 				table = append(table, []string{project.Key, project.Name})
 			}
 
+			pterm.DefaultSection.Println("Lista de Proyectos")
 			pterm.DefaultTable.WithHasHeader(true).WithData(table).Render()
 		},
 	}
 
 	cmd.Flags().StringVarP(&org, "org", "o", "", "Organización de SonarCloud (opcional, usa la configuración por defecto si no se especifica)")
+	return cmd
+}
+
+func CreateProjectCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "project",
+		Short:   "Crea un nuevo proyecto en SonarCloud",
+		Long:    `Crea un nuevo proyecto en SonarCloud utilizando la clave y el nombre proporcionados.`,
+		Example: `sonarcli create project --org my-org --project-key my-new-project --name "My New Project" --visibility private --code-definition previous_version`,
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if projectKey == "" || name == "" || visibility == "" || codeDefinition == "" {
+				pterm.Error.Printf("Error: Los parámetros --project-key, --name, --visibility y --code-definition son requeridos\n")
+				return cmd.Help()
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			cfg, err := sonar.LoadConfig()
+			if err != nil {
+				pterm.Error.Printf("Error loading config: %v\n", err)
+				return
+			}
+
+			finalOrg := org
+			if finalOrg == "" {
+				finalOrg = cfg.Organization
+			}
+
+			if finalOrg == "" {
+				pterm.Error.Printf("Error: organization is required\n")
+				return
+			}
+
+			params := sonar.NewProjectParams{
+				Organization:           finalOrg,
+				Name:                   name,
+				Project:                projectKey,
+				Visibility:             visibility,
+				NewCodeDefinitionType:  codeDefinition,
+				NewCodeDefinitionValue: codeDefinition,
+			}
+
+			client := sonar.NewClient()
+			response, err := sonar.CreateProject(client, params)
+			if err != nil {
+				pterm.Fatal.Printf("Error al crear el proyecto: %v\n", err)
+				return
+			}
+
+			table := pterm.TableData{
+				{"Clave", "Nombre", "Visibilidad", "UUID"},
+				{response.Key, response.Name, response.Visibility, response.UUID},
+			}
+
+			pterm.DefaultSection.Println("Proyecto Creado")
+			pterm.DefaultTable.WithHasHeader(true).WithData(table).Render()
+		},
+	}
+
+	cmd.Flags().StringVarP(&org, "org", "o", "", "Organización de SonarCloud (opcional, usa la configuración por defecto si no se especifica)")
+	cmd.Flags().StringVarP(&projectKey, "project-key", "p", "", "Clave del nuevo proyecto de SonarCloud")
+	cmd.Flags().StringVarP(&name, "name", "n", "", "Nombre del nuevo proyecto de SonarCloud")
+	cmd.Flags().StringVarP(&visibility, "visibility", "v", "", "Visibilidad del proyecto (public, private)")
+	cmd.Flags().StringVarP(&codeDefinition, "code-definition", "c", "", "Tipo de definición del nuevo código (previous_version, main_branch, specific_version)")
+	cmd.MarkFlagsRequiredTogether("project-key", "name", "visibility", "code-definition")
+
 	return cmd
 }
