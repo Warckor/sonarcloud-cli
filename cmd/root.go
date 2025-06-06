@@ -22,4 +22,5 @@ func Execute() {
 func init() {
 	rootCmd.AddCommand(actions.ListCmd())
 	rootCmd.AddCommand(actions.GetCmd())
+	rootCmd.AddCommand(actions.CreateCmd())
 }
