@@ -21,11 +21,13 @@ type NewProjectParams struct {
 }
 
 type NewProjectResponse struct {
-	Key        string `json:"key"`
-	Name       string `json:"name"`
-	Qualifier  string `json:"qualifier"`
-	Visibility string `json:"visibility"`
-	UUID       string `json:"uuid"`
+	Project struct {
+		Key        string `json:"key"`
+		Name       string `json:"name"`
+		Qualifier  string `json:"qualifier"`
+		Visibility string `json:"visibility"`
+		UUID       string `json:"uuid"`
+	} `json:"project"`
 }
 
 type listResponse struct {
@@ -69,16 +71,19 @@ func CreateProject(client *resty.Client, params NewProjectParams) (NewProjectRes
 	var resp NewProjectResponse
 
 	_, err := client.R().
-		SetBody(params).
+		SetFormData(map[string]string{
+			"organization":           params.Organization,
+			"name":                   params.Name,
+			"project":                params.Project,
+			"visibility":             params.Visibility,
+			"newCodeDefinitionType":  params.NewCodeDefinitionType,
+			"newCodeDefinitionValue": params.NewCodeDefinitionValue,
+		}).
 		SetResult(&resp).
 		Post("/api/projects/create")
 
 	if err != nil {
 		return NewProjectResponse{}, fmt.Errorf("error en la llamada a la API de SonarCloud: %w", err)
-	}
-
-	if resp.Key == "" {
-		return NewProjectResponse{}, fmt.Errorf("no se pudo crear el proyecto: respuesta vacía")
 	}
 
 	return resp, nil

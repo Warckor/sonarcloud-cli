@@ -111,7 +111,57 @@ sonarcli list project [flags]
 sonarcli list project --org mi-organizacion
 ```
 
-*(Más comandos y subcomandos serán documentados aquí a medida que se implementen, como `quality`, `user`, `actions create`, `actions get`, `actions list`, `actions status` etc.)*
+#### Crear un nuevo proyecto
+
+Crea un nuevo proyecto en SonarCloud utilizando la clave y el nombre proporcionados.
+
+**Uso:**
+
+```sh
+sonarcli create project [flags]
+```
+
+**Flags:**
+
+- `--org, -o string`: Organización de SonarCloud (opcional, usa la configuración por defecto si no se especifica).
+- `--project-key, -p string`: Clave del nuevo proyecto de SonarCloud (requerido).
+- `--name, -n string`: Nombre del nuevo proyecto de SonarCloud (requerido).
+- `--visibility, -V string`: Visibilidad del proyecto - `public` o `private` (requerido).
+- `--code-definition, -C string`: Tipo de definición del nuevo código - `previous_version`, `main_branch`, o `specific_version` (requerido).
+
+**Ejemplo:**
+
+```sh
+sonarcli create project --org mi-organizacion --project-key mi-nuevo-proyecto --name "Mi Nuevo Proyecto" --visibility private --code-definition previous_version
+```
+
+*Nota: Todos los parámetros `--project-key`, `--name`, `--visibility` y `--code-definition` son requeridos.*
+
+### Perfiles de Calidad (`quality`)
+
+#### Listar perfiles de calidad
+
+Lista los perfiles de calidad disponibles en SonarCloud.
+
+**Uso:**
+
+```sh
+sonarcli list quality [flags]
+```
+
+**Flags:**
+
+- `--org, -o string`: Organización de SonarCloud (opcional, usa la configuración por defecto si no se especifica).
+- `--output string`: Formato de salida - `json` o `table` (opcional, por defecto es table).
+
+**Ejemplo:**
+
+```sh
+sonarcli list quality --org mi-organizacion
+sonarcli list quality --org mi-organizacion --output json
+```
+
+*(Más comandos y subcomandos serán documentados aquí a medida que se implementen.)*
 
 ## Contribuciones
 

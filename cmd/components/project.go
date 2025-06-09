@@ -54,7 +54,7 @@ func GetProjectCmd() *cobra.Command {
 			client := sonar.NewClient()
 			projects, err := sonar.GetProject(client, params)
 			if err != nil {
-				pterm.Fatal.Printf("Error al obtener el proyecto: %v\n", err)
+				pterm.Error.Printf("Error al obtener el proyecto: %v\n", err)
 				return
 			}
 
@@ -104,7 +104,7 @@ func ListProjectsCmd() *cobra.Command {
 			client := sonar.NewClient()
 			projects, err := sonar.ListProjects(client, finalOrg)
 			if err != nil {
-				pterm.Fatal.Printf("Error al listar proyectos: %v\n", err)
+				pterm.Error.Printf("Error al listar proyectos: %v\n", err)
 				return
 			}
 
@@ -172,13 +172,13 @@ func CreateProjectCmd() *cobra.Command {
 			client := sonar.NewClient()
 			response, err := sonar.CreateProject(client, params)
 			if err != nil {
-				pterm.Fatal.Printf("Error al crear el proyecto: %v\n", err)
+				pterm.Error.Printf("Error al crear el proyecto: %v\n", err)
 				return
 			}
 
 			table := pterm.TableData{
 				{"Clave", "Nombre", "Visibilidad", "UUID"},
-				{response.Key, response.Name, response.Visibility, response.UUID},
+				{response.Project.Key, response.Project.Name, response.Project.Visibility, response.Project.UUID},
 			}
 
 			pterm.DefaultSection.Println("Proyecto Creado")
