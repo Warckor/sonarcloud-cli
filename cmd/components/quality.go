@@ -126,7 +126,7 @@ func GetQualityCmd() *cobra.Command {
 			}
 
 			if profile.QualityGate.ID == 0 {
-				pterm.Info.Println("No se encontró un perfil de calidad para el proyecto especificado.")
+				pterm.Error.Println("No se encontró un perfil de calidad para el proyecto especificado.")
 				return
 			}
 
