@@ -9,7 +9,7 @@ import (
 func GetCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get",
-		Short: "Recupera recursos desde SonarCloud",
+		Short: "Recupera un recurso específico desde SonarCloud",
 		Long:  "Este comando permite recuperar recursos específicos desde SonarCloud, como proyectos, métricas, etc.",
 	}
 

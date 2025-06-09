@@ -10,7 +10,7 @@ import (
 func GetProjectCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "project",
-		Short:   "Obtener el nombre de un proyecto específico",
+		Short:   "Obtener los datos de un proyecto específico",
 		Long:    `Obtiene los detalles de un proyecto específico en SonarCloud utilizando su clave.`,
 		Example: `sonarcli get project --org my-org --project-key my-project-key`,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
