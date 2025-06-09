@@ -189,8 +189,8 @@ func CreateProjectCmd() *cobra.Command {
 	cmd.Flags().StringVarP(&org, "org", "o", "", "Organización de SonarCloud (opcional, usa la configuración por defecto si no se especifica)")
 	cmd.Flags().StringVarP(&projectKey, "project-key", "p", "", "Clave del nuevo proyecto de SonarCloud")
 	cmd.Flags().StringVarP(&name, "name", "n", "", "Nombre del nuevo proyecto de SonarCloud")
-	cmd.Flags().StringVarP(&visibility, "visibility", "v", "", "Visibilidad del proyecto (public, private)")
-	cmd.Flags().StringVarP(&codeDefinition, "code-definition", "c", "", "Tipo de definición del nuevo código (previous_version, main_branch, specific_version)")
+	cmd.Flags().StringVarP(&visibility, "visibility", "V", "", "Visibilidad del proyecto (public, private)")
+	cmd.Flags().StringVarP(&codeDefinition, "code-definition", "C", "", "Tipo de definición del nuevo código (previous_version, main_branch, specific_version)")
 	cmd.MarkFlagsRequiredTogether("project-key", "name", "visibility", "code-definition")
 
 	return cmd
