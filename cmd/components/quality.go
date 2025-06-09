@@ -125,6 +125,11 @@ func GetQualityCmd() *cobra.Command {
 				return
 			}
 
+			if profile.QualityGate.ID == 0 {
+				pterm.Info.Println("No se encontró un perfil de calidad para el proyecto especificado.")
+				return
+			}
+
 			table := pterm.TableData{
 				{"ID", "Nombre", "Predeterminado"},
 				{strconv.FormatInt(int64(profile.QualityGate.ID), 10), profile.QualityGate.Name, strconv.FormatBool(profile.QualityGate.Default)},
