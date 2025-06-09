@@ -14,5 +14,6 @@ func GetCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(components.GetProjectCmd())
+	cmd.AddCommand(components.GetQualityCmd())
 	return cmd
 }

@@ -20,6 +20,14 @@ type QualityProfile struct {
 	} `json:"qualityGates"`
 }
 
+type QualityProfileProject struct {
+	QualityGate struct {
+		ID      int    `json:"id"`
+		Name    string `json:"name"`
+		Default bool   `json:"default"`
+	}
+}
+
 func ListQualityProfiles(client *resty.Client, params map[string]string) (QualityProfile, error) {
 	var resp QualityProfile
 
@@ -30,6 +38,21 @@ func ListQualityProfiles(client *resty.Client, params map[string]string) (Qualit
 
 	if err != nil {
 		return QualityProfile{}, fmt.Errorf("error en la llamada a la API de SonarCloud: %w", err)
+	}
+
+	return resp, nil
+}
+
+func GetQualityProfile(client *resty.Client, params map[string]string) (QualityProfileProject, error) {
+	var resp QualityProfileProject
+
+	_, err := client.R().
+		SetQueryParams(params).
+		SetResult(&resp).
+		Get("/api/qualitygates/get_by_project")
+
+	if err != nil {
+		return QualityProfileProject{}, fmt.Errorf("error en la llamada a la API de SonarCloud: %w", err)
 	}
 
 	return resp, nil
