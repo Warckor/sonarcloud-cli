@@ -28,6 +28,26 @@ type QualityProfileProject struct {
 	}
 }
 
+type QualityGateStatus struct {
+	ProjectStatus struct {
+		Status     string `json:"status"`
+		Conditions []struct {
+			Status         string `json:"status"`
+			MetricKey      string `json:"metricKey"`
+			Comparator     string `json:"comparator"`
+			PeriodIndex    int    `json:"periodIndex"`
+			ErrorThreshold string `json:"errorThreshold"`
+			ActualValue    string `json:"actualValue"`
+		} `json:"conditions"`
+		Periods []struct {
+			Index int    `json:"index"`
+			Mode  string `json:"mode"`
+			Date  string `json:"date"`
+		} `json:"periods"`
+		IgnoredConditions bool `json:"ignoredConditions"`
+	} `json:"projectStatus"`
+}
+
 func ListQualityProfiles(client *resty.Client, params map[string]string) (QualityProfile, error) {
 	var resp QualityProfile
 
@@ -53,6 +73,21 @@ func GetQualityProfile(client *resty.Client, params map[string]string) (QualityP
 
 	if err != nil {
 		return QualityProfileProject{}, fmt.Errorf("error en la llamada a la API de SonarCloud: %w", err)
+	}
+
+	return resp, nil
+}
+
+func StatusQualityGate(client *resty.Client, params map[string]string) (QualityGateStatus, error) {
+	var resp QualityGateStatus
+
+	_, err := client.R().
+		SetQueryParams(params).
+		SetResult(&resp).
+		Get("/api/qualitygates/project_status")
+
+	if err != nil {
+		return QualityGateStatus{}, fmt.Errorf("error en la llamada a la API de SonarCloud: %w", err)
 	}
 
 	return resp, nil

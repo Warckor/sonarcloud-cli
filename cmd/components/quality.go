@@ -146,3 +146,67 @@ func GetQualityCmd() *cobra.Command {
 
 	return cmd
 }
+
+func StatusQualityCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "quality",
+		Short:   "Verificar el estado del perfil de calidad de un proyecto",
+		Long:    `Verifica el estado del perfil de calidad asociado a un proyecto en SonarCloud.`,
+		Example: `sonarcli status quality --project-key my-project-key --branch my-branch`,
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if projectKey == "" {
+				pterm.Error.Println("Error: se requiere la clave del proyecto")
+				return cmd.Help()
+			}
+			if branch == "" {
+				branch = "main"
+				return nil
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			params := map[string]string{
+				"projectKey": projectKey,
+			}
+
+			if branch != "" {
+				params["branch"] = branch
+			}
+
+			client := sonar.NewClient()
+			response, err := sonar.StatusQualityGate(client, params)
+			if err != nil {
+				pterm.Error.Printf("Error al obtener el estado del perfil de calidad: %v\n", err)
+				return
+			}
+
+			if len(response.ProjectStatus.Conditions) == 0 {
+				pterm.Error.Println("No se encontraron condiciones para el perfil de calidad del proyecto especificado.")
+				return
+			}
+
+			table := pterm.TableData{
+				{"Métrica", "Estado", "Valor Actual", "Umbral de Error", "Comparador"},
+			}
+
+			for _, condition := range response.ProjectStatus.Conditions {
+				table = append(table, []string{
+					condition.MetricKey,
+					condition.Status,
+					condition.ActualValue,
+					condition.ErrorThreshold,
+					condition.Comparator,
+				})
+			}
+
+			pterm.DefaultSection.Println("Estado del Perfil de Calidad del Proyecto")
+			pterm.DefaultTable.WithHasHeader(true).WithData(table).Render()
+		},
+	}
+
+	cmd.Flags().StringVarP(&projectKey, "project-key", "p", "", "Clave del proyecto de SonarCloud (requerido)")
+	cmd.Flags().StringVarP(&branch, "branch", "b", "", "Nombre de la rama del proyecto (opcional, por defecto es 'main')")
+	cmd.MarkFlagRequired("project-key")
+
+	return cmd
+}

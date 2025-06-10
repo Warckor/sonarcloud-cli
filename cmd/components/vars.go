@@ -6,4 +6,5 @@ var (
 	name           string
 	visibility     string
 	codeDefinition string
+	branch         string
 )
